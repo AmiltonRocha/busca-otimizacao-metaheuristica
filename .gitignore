@@ -5,6 +5,7 @@ env/
 
 # Cache do Python
 __pycache__/
+.pycache/
 *.py[cod]
 *.pyo
 
