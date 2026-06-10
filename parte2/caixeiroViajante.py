@@ -1,6 +1,7 @@
 import random
 import math
 import csv
+import os
 from collections import Counter
 from algoritmoGenetico import AlgoritmoGenetico
 
@@ -22,14 +23,12 @@ class CaixeiroViajanteGA(AlgoritmoGenetico):
         xj, yj, zj = self.pontos[j]
         return math.sqrt((xi - xj) ** 2 + (yi - yj) ** 2 + (zi - zj) ** 2)
 
-    # ── Requisito 2 (indivíduo): permutação aleatória dos pontos ──────────────
 
     def gerar_individuo(self):
         rota = list(range(self.n_pontos))
         random.shuffle(rota)
         return rota
 
-    # ── Função custo: Ψ(x) = soma das distâncias da rota ─────────────────────
 
     def calcular_custo(self, individuo):
         return sum(
@@ -37,7 +36,6 @@ class CaixeiroViajanteGA(AlgoritmoGenetico):
             for i in range(self.n_pontos)
         )
 
-    # ── Requisito 4: recombinação de dois pontos (Order Crossover - OX) ───────
 
     def recombinar(self, pai1, pai2):
         """
@@ -64,7 +62,6 @@ class CaixeiroViajanteGA(AlgoritmoGenetico):
 
         return filho
 
-    # ── Requisito 5: mutação por troca de dois genes (1%) ─────────────────────
 
     def mutar(self, individuo):
         """Troca dois genes aleatórios na sequência cromossômica."""
@@ -80,7 +77,6 @@ class CaixeiroViajanteGA(AlgoritmoGenetico):
         print(f"Rota: {rota}")
 
 
-# ── Geração de pontos 3D por região (simula CaixeiroGrupos.csv) ───────────────
 
 def gerar_pontos_3d_por_regiao(n_por_regiao, seed=None):
     """
@@ -143,18 +139,22 @@ def analisar_geracoes(pontos, n_rodadas=30, **kwargs):
 
 
 if __name__ == "__main__":
-    # ── Requisito 1: 30 < Npontos < 60 ────────────────────────────────────────
     N_POR_REGIAO = 10          # 4 regiões × 10 pontos = 40 pontos total
-    pontos = gerar_pontos_3d_por_regiao(N_POR_REGIAO, seed=42)
-    print(f"Pontos gerados: {len(pontos)} (4 regiões × {N_POR_REGIAO})\n")
 
-    # ── Requisito 2: N indivíduos e máximo de gerações ────────────────────────
+    CSV_PATH = "parte2/CaixeiroGruposGA.csv"
+    if os.path.exists(CSV_PATH):
+        pontos = carregar_csv(CSV_PATH)
+        print(f"Pontos carregados do CSV: {len(pontos)}\n")
+    else:
+        pontos = gerar_pontos_3d_por_regiao(N_POR_REGIAO, seed=42)
+        print(f"CSV não encontrado. Pontos gerados: {len(pontos)} (4 regiões × {N_POR_REGIAO})\n")
+
     PARAMS = dict(
         n_individuos=100,
         max_geracoes=500,
-        prob_mutacao=0.01,     # Requisito 5: mutação 1%
-        n_elite=5,             # Requisito 7: elitismo com Ne=5
-        max_sem_melhora=50,    # Requisito 6: estagnação
+        prob_mutacao=0.01,     
+        n_elite=5,             
+        max_sem_melhora=50,    
     )
 
     problema = CaixeiroViajanteGA(pontos=pontos, **PARAMS)
@@ -165,7 +165,6 @@ if __name__ == "__main__":
     print(f"Geração de parada: {geracao}")
     print(f"Melhora ao longo das gerações: {historico[0]:.2f} → {historico[-1]:.2f}\n")
 
-    # ── Requisito 7: análise — moda de gerações e impacto do elitismo ─────────
     print("--- Análise: sem elitismo (n_elite=0) ---")
     analisar_geracoes(pontos, n_rodadas=30, **{**PARAMS, "n_elite": 0})
 

@@ -10,10 +10,9 @@ class AlgoritmoGenetico(ABC):
         self.max_geracoes = max_geracoes
         self.prob_mutacao = prob_mutacao
         self.n_elite = n_elite
-        # max_sem_melhora: critério de parada por estagnação (slide 31/61)
+        # max_sem_melhora: critério de parada por estagnação
         self.max_sem_melhora = max_sem_melhora
 
-    # ── Métodos abstratos (definidos pelo problema) ────────────────────────────
 
     @abstractmethod
     def gerar_individuo(self):
@@ -31,7 +30,6 @@ class AlgoritmoGenetico(ABC):
     def mutar(self, individuo):
         pass
 
-    # ── Métodos implementados na base (estrutura do GA) ───────────────────────
 
     def gerar_populacao(self):
         return [self.gerar_individuo() for _ in range(self.n_individuos)]
@@ -60,16 +58,14 @@ class AlgoritmoGenetico(ABC):
         for geracao in range(1, self.max_geracoes + 1):
             geracao_final = geracao
 
-            # Critério de parada por estagnação (slide 31/61):
             # para quando o melhor não melhora por max_sem_melhora gerações seguidas
             if sem_melhora >= self.max_sem_melhora:
                 break
 
-            # Elitismo: copia os n_elite melhores diretamente para a próxima geração
+            # copia os n_elite melhores diretamente para a próxima geração
             indices_ord = sorted(range(len(custos)), key=lambda i: custos[i])
             elite = [populacao[i][:] for i in indices_ord[:self.n_elite]]
 
-            # Gera o restante da nova população via seleção, recombinação e mutação
             nova_populacao = elite[:]
             while len(nova_populacao) < self.n_individuos:
                 pai1 = self.selecionar_por_torneio(populacao, custos)
